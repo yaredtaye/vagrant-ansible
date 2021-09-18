@@ -1,0 +1,44 @@
+#
+# Fayda: 
+#
+# Ansible role for VM provisioning using Vagrant
+#
+# NB: Assumes Windows Host
+#
+
+- name: Install Vagrant if not available
+  win_chocolatey:
+    name: vagrant
+    state: present
+  become: yes
+  become_user: Administrator
+  become_method: runas
+
+#  win_package:
+#    path: https://releases.hashicorp.com/vagrant/2.2.15/vagrant_2.2.15_x86_64.msi
+#    validate_certs: no
+#    url_timeout: 50
+#    product_id: vagrant
+#    state: present
+
+- name: Create a directory named Vagrant
+  win_file:
+    path: 'C:\Vagrant\'
+    state: directory
+- name: Copy Vagrant file to target host machine
+  win_template:
+    src: templates/Vagrantfile.j2
+    dest: 'C:\Vagrant\Vagrantfile'
+
+# create VM
+- name: Create VM
+  win_command: vagrant up
+  args: 
+    chdir: 'C:\Vagrant'
+
+# Restart VM
+- name: Restart VMs
+  win_command: vagrant reload
+  args: 
+    chdir: 'C:\Vagrant'
+

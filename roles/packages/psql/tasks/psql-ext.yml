@@ -1,0 +1,108 @@
+- name: Install downlaod/file plugins
+  yum: 
+    name: '{{ item }}' 
+    update_cache: true 
+    state: present
+  become: true  
+  with_items:
+    - wget
+    - python-psycopg2
+
+- name: add repository  (CentOS6/CentOS7)
+  yum: 
+    name:  https://download.postgresql.org/pub/repos/yum/10/redhat/rhel-7.8-x86_64/pgdg-redhat-repo-latest.noarch.rpm
+    state: present
+  become: yes 
+
+- name: install postgres server 12
+  yum: 
+    name: postgresql12-server
+    state: present
+  become: yes
+
+- name: Clean the data directory
+  file:
+    state: absent
+    path: /var/lib/pgsql/12/data/
+  become: yes
+  
+- name: initialize the DB
+  command: /usr/pgsql-12/bin/postgresql-12-setup initdb
+  become: yes
+
+- name: Add to startup
+  command: systemctl enable postgresql-12.service
+
+- name: start the service
+  command: systemctl start postgresql-12.service
+
+- name: Create log dir if does not exist
+  file: 
+    path: '{{postgres.log_path}}'
+    state: directory
+
+- name: Stop firewalld
+  command: 'systemctl stop firewalld'
+  become: yes
+  ignore_errors: yes
+
+- name: Disable firewalld
+  command: 'systemctl disable firewalld'
+  become: yes
+  ignore_errors: yes  
+
+- name: allow local login
+  lineinfile:
+    path: /var/lib/pgsql/12/data/pg_hba.conf
+    line: 'local    all             all                                    md5'
+    regexp  : '^host( )*all( )*all( )*127\.0\.0\.1\/32( )*ident*'
+    state: present
+
+- name: allow local login
+  lineinfile:
+    path: /var/lib/pgsql/12/data/pg_hba.conf
+    line: 'host    all             all             127.0.0.1/32            md5'
+    regexp  : '^host( )*all( )*all( )*127\.0\.0\.1\/32( )*ident*'
+    state: present
+
+- name: allow local login
+  lineinfile:
+    path: /var/lib/pgsql/12/data/pg_hba.conf
+    line: 'host    all             all             0.0.0.0/0            md5'
+    regexp  : '^host( )*all( )*all( )*127\.0\.0\.1\/32( )*ident*'
+    state: present
+
+- name: allow local login
+  lineinfile:
+    path: /var/lib/pgsql/12/data/pg_hba.conf
+    line: 'host    all             all             ::1/128            md5'
+    regexp  : '^host( )*all( )*all( )*::1/128 ( )*ident*'
+    state: present
+
+- name: add listening address
+  lineinfile:
+    path: /var/lib/pgsql/12/data/postgresql.conf
+    line: "listen_addresses = '*'"
+    regexp  : '^#?listen_addresses\s*='
+    state: present
+
+- name: update default postgres port
+  lineinfile:
+    path: /var/lib/pgsql/12/data/postgresql.conf
+    line: 'port = {{postgres.port}}'
+    regexp  : '^#?port\s*='
+    state: present
+
+- name: start the service
+  command: systemctl start postgresql-12.service
+- name: pd reset database user
+  become: yes
+  become_method: sudo
+  become_user: postgres
+  postgresql_user: 
+    db: postgres
+    name: postgres
+    password: '{{secrets.postgres.su}}'
+
+- name: Re-start the service
+  command: systemctl restart postgresql-12.service

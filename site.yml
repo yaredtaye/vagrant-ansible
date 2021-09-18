@@ -1,0 +1,8 @@
+#
+#
+# main
+#
+#
+
+- import_playbook: playbooks/create_vm.yml
+- import_playbook: playbooks/init_vm.yml

@@ -1,0 +1,29 @@
+
+# Install some useful utils on all machines
+- name: Install utils on all linux machines
+  hosts: all_machine
+  gather_facts: true
+  roles:
+     - {role: packages/vim, tags: [vim]}
+     - {role: packages/telnet, tags: [telnet]}
+     - {role: packages/bind-utils, tags: [bind-utils]}  
+     - {role: packages/net-tools, tags: [net-tools]}
+     - {role: packages/epel, tags: [epel]}
+     - {role: packages/pip, tags: [pip]}
+     - {role: packages/git, tags: [git]}
+     - {role: packages/pexpect, tags: [pexpect]}
+
+# Change datetime of all machines to UTC
+  vars:
+    ansible_python_interpreter: /usr/bin/python
+  tasks:
+    - command: "date '+%Y-%m-%d %H:%M:%S'"
+      register: date_utc
+      environment:
+        TZ: UTC
+  
+    - name: Change selinux to permissive mode.  
+      selinux:
+        policy: targeted
+        state: permissive
+      become: yes

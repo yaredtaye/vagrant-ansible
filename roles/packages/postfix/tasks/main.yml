@@ -1,0 +1,90 @@
+- name: Enable epel-release
+  yum: name=epel-release state=present
+
+- name: Install httpd, mod_ssl, squirrelmail for HTTP; postfix for SMTP; dovecot for IMAP; vim, mailx, bind-utils for administration
+  yum: name={{item}} state=present
+  with_items:
+    - httpd
+    - mod_ssl
+    - postfix
+    - vim
+    - bind-utils
+    - dovecot
+    - squirrelmail
+    - mailx
+
+- name: Change listen to 0.0.0.0:80 in httpd.conf
+  lineinfile: 
+    dest: /etc/httpd/conf/httpd.conf
+    regexp: Listen .*80
+    line: Listen 0.0.0.0:80
+  notify:
+    - Restart Httpd
+
+- name: Start httpd and enable it to run on startup
+  service: name=httpd state=started enabled=yes
+
+- name: Set correct hostname for mail server
+  lineinfile:
+    dest: /etc/postfix/main.cf
+    regexp: myhostname=.*
+    line: myhostname={{myhostname}}
+
+- name: Set correct domain for mail server
+  lineinfile:
+    dest: /etc/postfix/main.cf
+    regexp: mydomain=.*
+    line: mydomain={{mydomain}}
+
+- name: Set origin for mail server to $domain
+  lineinfile:
+    dest: /etc/postfix/main.cf
+    regexp: myorigin=.*
+    line: "myorigin=$mydomain"
+
+- name: Set inet_interfaces for mail server to all
+  lineinfile:
+    dest: /etc/postfix/main.cf
+    regexp: "^inet_interfaces *=.*"
+    line: "inet_interfaces=all"
+
+- name: Set correct mydestination for mail server
+  lineinfile:
+    dest: /etc/postfix/main.cf
+    regexp: "^mydestination *=.*"
+    line: "mydestination = $myhostname, localhost.$mydomain, localhost, $mydomain"
+
+- name: Set home_mailbox for mail server
+  lineinfile:
+    dest: /etc/postfix/main.cf
+    regexp: "^home_mailbox *=.*"
+    line: "home_mailbox = mail/"
+
+- name: configuring postfix sasl creds
+  copy:
+    content: '[fayda.et]:25 root@fayda.et:123456'
+    dest: /etc/postfix/sasl_passwd
+    owner: root
+    group: postfix
+    mode: 0640
+        
+- name:
+  command: postmap /etc/postfix/sasl_passwd
+
+- name: Restart postfix and enable it on startup
+  service: name=postfix state=restarted enabled=yes
+
+- name: Set mail_location for imap server
+  lineinfile:
+    dest: /etc/dovecot/conf.d/10-mail.conf
+    regexp: "^mail_location *=.*"
+    line: "mail_location = maildir:~/mail"
+ 
+- name: Restart dovecot and enable it on startup
+  service: name=dovecot state=restarted enabled=yes
+
+- name: Configure squirrelmail using template
+  template: src=config.php.j2 dest=/etc/squirrelmail/config.php owner=root group=apache mode=640
+
+- name: restart httpd
+  service: name=httpd state=restarted   

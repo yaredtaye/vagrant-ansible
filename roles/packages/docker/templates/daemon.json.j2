@@ -1,0 +1,8 @@
+{
+  "log-driver": "json-file",
+  "log-opts": {
+    "max-size": "{{docker.log_roll.max_size}}",
+    "max-file": "{{docker.log_roll.max_files}}"
+  },
+  "insecure-registries": ["docker-registry.{{app_internal_tld}}:5000"]
+}

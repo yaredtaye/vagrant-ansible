@@ -1,0 +1,29 @@
+---
+# 
+#
+# VM to be created on Linux hosts
+#
+vms:
+  - name: "vm1"
+    box_image: "./centos-x86_64.img"
+    memory: "8192"
+    cpus: 4
+    hostname: "vm1"
+    replica: 1
+    provider: "hyperv"
+    ipaddr: "192.168.5.150" 
+    netmask: "255.255.255.0" 
+    gateway: "192.168.5.1" 
+    intf: "eth0" 
+
+  - name: "vm2"
+    box_image: "./centos-x86_64.img"
+    memory: "16384"
+    cpus: 4
+    hostname: "vm2"
+    replica: 1
+    provider: "hyperv"
+    ipaddr: "192.168.5.151" 
+    netmask: "255.255.255.0" 
+    gateway: "192.168.5.1" 
+    intf: "eth0" 

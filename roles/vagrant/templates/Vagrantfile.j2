@@ -1,0 +1,42 @@
+#
+# VM template
+#             
+#
+# <nidp>
+#
+
+
+Vagrant.configure("2") do |config|
+  config.vm.synced_folder ".", "/vagrant", disabled: true
+
+
+{% for vm in vms %}
+#
+# {{ vm.name }} {{ '%0x' % loop.index }} 
+#
+  config.vm.define "{{ vm.name }}" do |{{ vm.name }}|
+      {{ vm.name }}.vm.box = "{{ vm.box_image }}"
+      {{ vm.name }}.vm.box_url = "http://{{ control_machine_ip }}/vagrant/devops/boxes/fayda-custom-box"
+      {{ vm.name }}.vm.hostname = "{{ vm.hostname }}"
+
+      {{ vm.name }}.vm.network "public_network"
+
+        {{ vm.name }}.vm.provider "{{ vm.provider }}" do |{{ vm.name }}_vb|
+          {{ vm.name }}_vb.cpus = {{ vm.cpus }}
+          {{ vm.name }}_vb.memory = {{ vm.memory }}
+          {{ vm.name }}_vb.vmname = "{{ vm.name }}"
+        end
+      
+      {{ vm.name }}.vm.provision "shell",
+          run: "always",
+          inline: "sudo ip r delete default via {{ vm.gateway }} > /dev/null 2>&1; 
+		               sudo ip addr del {{ vm.ipaddr }}/24 dev {{ vm.intf }}  > /dev/null 2>&1;
+		               sudo ip addr add {{ vm.ipaddr }}/24 dev {{ vm.intf }};
+                   sudo ip route add default via {{ vm.gateway }} dev {{ vm.intf }} ;
+                   echo -e \"DEVICE='{{ vm.intf }}' \nONBOOT=yes\nIPADDR={{ vm.ipaddr }}\nNETMASK={{ vm.netmask }}\nGATEWAY={{ vm.gateway }}\nDNS1=4.2.2.2\nDNS1=8.8.8.8\nPEERDNS=yes\n\" \
+                        | sudo tee /etc/sysconfig/network-scripts/ifcfg-{{ vm.intf }}"
+
+  end
+{% endfor %}
+
+end
