@@ -1,0 +1,31 @@
+#
+# centOS
+#
+
+- name: Install Vagrant if not available
+  yum:
+    name: https://releases.hashicorp.com/vagrant/2.2.2/vagrant_2.2.2_x86_64.rpm
+    state: present
+
+- name: Create a directory named Vagrant
+  win_file:
+    path: '~/vagrant'
+    state: directory
+
+- name: Copy Vagrant file to target host machine
+  win_template:
+    src: templates/Vagrantfile.j2
+    dest: '~/vagrant/Vagrantfile'
+
+# create VM
+- name: Create VM
+  win_command: vagrant up
+  args: 
+    chdir: '~/vagrant'
+
+# Restart VM
+- name: Restart VMs
+  win_command: vagrant reload
+  args: 
+    chdir: '~/vagrant/'
+
