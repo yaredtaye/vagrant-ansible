@@ -1,5 +1,0 @@
-
-- import_tasks: psql-int.yml
-  when:  app_environment == 'development'
-- import_tasks: psql-ext.yml
-  when:  app_environment == 'production'
