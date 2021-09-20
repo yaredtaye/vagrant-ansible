@@ -1,7 +1,7 @@
 ---
 # 
 #
-# VM to be created on Linux hosts
+# VM specifications for  windows host
 #
 vms:
   - name: "vm3"

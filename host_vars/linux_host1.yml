@@ -1,7 +1,7 @@
 ---
 # 
 #
-# VM to be created on Linux hosts
+# VM specifications: ...for linux host
 #
 vms:
   - name: "vm1"
