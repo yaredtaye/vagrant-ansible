@@ -5,7 +5,6 @@
 #
 vms:
   - name: "vm1"
-    box_image: "./centos-x86_64.img"
     memory: "8192"
     cpus: 4
     hostname: "vm1"
@@ -17,7 +16,6 @@ vms:
     intf: "eth0" 
 
   - name: "vm2"
-    box_image: "./centos-x86_64.img"
     memory: "16384"
     cpus: 4
     hostname: "vm2"

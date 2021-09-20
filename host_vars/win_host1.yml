@@ -5,7 +5,6 @@
 #
 vms:
   - name: "vm3"
-    box_image: "./centos-x86_64.img"
     memory: "8192"
     cpus: 4
     hostname: "vm3"
@@ -17,7 +16,6 @@ vms:
     intf: "eth0" 
 
   - name: "vm4"
-    box_image: "./centos-x86_64.img"
     memory: "16384"
     cpus: 4
     hostname: "vm4"

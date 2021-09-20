@@ -15,8 +15,8 @@ Vagrant.configure("2") do |config|
 # {{ vm.name }} {{ '%0x' % loop.index }} 
 #
   config.vm.define "{{ vm.name }}" do |{{ vm.name }}|
-      {{ vm.name }}.vm.box = "{{ vm.box_image }}"
-      {{ vm.name }}.vm.box_url = "http://{{ control_machine_ip }}/vagrant/devops/boxes/fayda-custom-box"
+      {{ vm.name }}.vm.box = "{{ image.distro }}"
+      {{ vm.name }}.vm.box_url = "{{ image.url }}" 
       {{ vm.name }}.vm.hostname = "{{ vm.hostname }}"
 
       {{ vm.name }}.vm.network "public_network"
